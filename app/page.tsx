@@ -1,167 +1,128 @@
-"use client"
+'use client'
 
-// First, let's define our custom types for the Web Speech API
-interface SpeechRecognitionEvent extends Event {
-  results: SpeechRecognitionResultList;
-}
+import { motion } from 'framer-motion'
+import { FaRobot, FaCode, FaComments, FaMicrophone } from 'react-icons/fa'
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
-interface SpeechRecognitionErrorEvent extends Event {
-  error: string;
-}
-
-interface SpeechRecognition extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  start: () => void;
-  stop: () => void;
-  abort: () => void;
-  onresult: (event: SpeechRecognitionEvent) => void;
-  onerror: (event: SpeechRecognitionErrorEvent) => void;
-  onend: () => void;
-  onstart: () => void;
-}
-
-// Define a constructor for SpeechRecognition
-interface SpeechRecognitionConstructor {
-  new (): SpeechRecognition;
-}
-
-// Extend the Window interface to include SpeechRecognition
-declare global {
-  interface Window {
-    SpeechRecognition?: SpeechRecognitionConstructor;
-    webkitSpeechRecognition?: SpeechRecognitionConstructor;
-  }
-}
-
-// Now, let's update our component
-import React, { useState, useEffect, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Mic, Send } from 'lucide-react';
-
-interface ChatMessage {
-  id: string;
-  text: string;
-  isUser: boolean;
-}
-
-export default function HomePage() {
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [inputText, setInputText] = useState('');
-  const [isListening, setIsListening] = useState(false);
-  const [codeEditorContent, setCodeEditorContent] = useState('');
-
-  // Function to handle voice input using Web Speech API
-  const handleVoiceInput = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      
-      if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'en-US';
-        recognition.continuous = false;
-        recognition.interimResults = false;
-
-        recognition.onstart = () => setIsListening(true);
-        
-        recognition.onresult = (event: SpeechRecognitionEvent) => {
-          const transcript = event.results[0][0].transcript;
-          setInputText(transcript);
-          setIsListening(false);
-        };
-
-        recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-          console.error('Speech recognition error', event.error);
-          setIsListening(false);
-        };
-
-        recognition.onend = () => setIsListening(false);
-
-        recognition.start();
-      } else {
-        console.error('Speech recognition not supported');
-      }
-    }
-  }, []);
-
-  // Function to handle sending a message in the chat
-  const handleSendMessage = useCallback(() => {
-    if (inputText.trim() !== '') {
-      const newMessage: ChatMessage = {
-        id: Date.now().toString(),
-        text: inputText.trim(),
-        isUser: true,
-      };
-      setChatMessages(prevMessages => [...prevMessages, newMessage]);
-      setInputText('');
-    }
-  }, [inputText]);
-
-  // Handle Enter key press
-  const handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  }, [handleSendMessage]);
-
-  useEffect(() => {
-    // Scroll to bottom of chat when messages change
-    const chatContainer = document.getElementById('chat-container');
-    if (chatContainer) {
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-  }, [chatMessages]);
+export default function LandingPage() {
+  const router = useRouter();
+  const features = [
+    { icon: FaRobot, title: 'AI-Powered Learning', description: 'Socratic method tailored to your pace' },
+    { icon: FaCode, title: 'Interactive Code Editor', description: 'Write and test DSA in real-time' },
+    { icon: FaComments, title: 'Intelligent Chatbot', description: 'Get guidance through chat interactions' },
+    { icon: FaMicrophone, title: 'Voice Functionality', description: 'Learn DSA through voice conversations' },
+  ]
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Chat Section on the Left */}
-      <div className="w-1/3 p-6 bg-white shadow-md overflow-hidden flex flex-col">
-        <h1 className="text-2xl font-bold mb-4">Chat with AI</h1>
-        {/* Chat Messages */}
-        <div id="chat-container" className="flex-grow overflow-y-auto mb-4 space-y-2">
-          {chatMessages.map((message) => (
-            <div
-              key={message.id}
-              className={`p-2 rounded-lg ${
-                message.isUser ? 'bg-blue-100 ml-auto' : 'bg-gray-100'
-              } max-w-[80%]`}
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 text-gray-800">
+      <header className="container mx-auto px-4 py-6 flex justify-between items-center">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-2xl font-bold text-indigo-600">CodeRonin</h1>
+        </motion.div>
+        <nav>
+          <motion.ul
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex space-x-4"
+          >
+            <li><Button variant="ghost" className="text-gray-600 hover:text-indigo-600">Features</Button></li>
+            <li><Button variant="ghost" className="text-gray-600 hover:text-indigo-600">Pricing</Button></li>
+            <li><Button variant="ghost" className="text-gray-600 hover:text-indigo-600">About</Button></li>
+            <li><Button variant="outline" className="text-indigo-600 border-indigo-600 hover:bg-indigo-600 hover:text-white" onClick={() => router.push('/authPage')}>Log In</Button></li>
+          </motion.ul>
+        </nav>
+      </header>
+
+      <main className="container mx-auto px-4 py-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-5xl font-bold mb-4 text-indigo-800">Master DSA with AI Guidance</h2>
+          <p className="text-xl mb-8 text-gray-600">Experience the Socratic method in Data Structures and Algorithms learning</p>
+          <div className="flex justify-center space-x-4">
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">Start Learning</Button>
+            <Button variant="outline" className="text-indigo-600 border-indigo-600 hover:bg-indigo-600 hover:text-white">
+              Explore Features
+            </Button>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16"
+        >
+          {features.map((feature, index) => (
+            <motion.div
+              key={feature.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 * index }}
             >
-              {message.text}
-            </div>
+              <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardContent className="p-6">
+                  <feature.icon className="text-indigo-500 text-4xl mb-4" />
+                  <h3 className="text-xl font-semibold mb-2 text-indigo-800">{feature.title}</h3>
+                  <p className="text-gray-600">{feature.description}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+          className="flex flex-col md:flex-row items-center justify-between mb-16"
+        >
+          <div className="md:w-1/2 mb-8 md:mb-0">
+            <h2 className="text-3xl font-bold mb-4 text-indigo-800">Interactive Learning Environment</h2>
+            <p className="text-xl mb-6 text-gray-600">
+              Engage with our AI tutor in a dynamic code editor. Receive real-time feedback and guidance as you tackle DSA challenges.
+            </p>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">Try Demo Editor</Button>
+          </div>
+          <div className="md:w-1/2 relative h-64 w-full">
+            <Image
+              src="/placeholder.svg?height=256&width=512"
+              alt="CodeRonin Interactive Editor"
+              layout="fill"
+              objectFit="cover"
+              className="rounded-lg shadow-lg"
+            />
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-3xl font-bold mb-4 text-indigo-800">Ready to Elevate Your DSA Skills?</h2>
+          <p className="text-xl mb-8 text-gray-600">Join CodeRonin and experience a revolutionary way to master Data Structures and Algorithms</p>
+          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => router.push('/authPage')}>Get Started for Free</Button>
+        </motion.div>
+      </main>
+
+      <footer className="bg-indigo-100 py-8">
+        <div className="container mx-auto px-4 text-center text-gray-600">
+          <p>&copy; 2024 CodeRonin. All rights reserved.</p>
         </div>
-        {/* Input Field and Buttons */}
-        <div className="flex space-x-2">
-          <Input
-            value={inputText}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputText(e.target.value)}
-            onKeyPress={handleKeyPress}
-            className="flex-1"
-            placeholder="Type your message"
-          />
-          <Button onClick={handleSendMessage} variant="default">
-            <Send className="h-4 w-4" />
-          </Button>
-          <Button onClick={handleVoiceInput} variant="outline">
-            {isListening ? 'Listening...' : <Mic className="h-4 w-4" />}
-          </Button>
-        </div>
-      </div>
-      {/* Code Editor Section on the Right */}
-      <div className="w-2/3 p-6">
-        <h1 className="text-2xl font-bold mb-4">Code Editor</h1>
-        {/* Code Editor */}
-        <Textarea
-          value={codeEditorContent}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCodeEditorContent(e.target.value)}
-          className="w-full h-[calc(100%-3rem)] resize-none font-mono"
-          placeholder="Write your code here..."
-        />
-      </div>
+      </footer>
     </div>
-  );
+  )
 }
