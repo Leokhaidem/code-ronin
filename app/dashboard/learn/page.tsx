@@ -23,7 +23,7 @@ export default function LearningPage() {
     }
   }
 
-  const handleChatSubmit = (e: React.FormEvent) => {
+  const handleChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (userInput.trim()) {
       setChatMessages([...chatMessages, { role: 'user', content: userInput }])
@@ -31,6 +31,28 @@ export default function LearningPage() {
       setTimeout(() => {
         setChatMessages(prev => [...prev, { role: 'bot', content: 'I understand you want to learn about ' + userInput + '. Let\'s start with the basics.' }])
       }, 1000)
+      try {
+        // Make a request to your API route
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: userInput }),
+        });
+  
+        const data = await response.json();
+        console.log(data)
+        // Update chat messages with the bot's response
+        setChatMessages(prev => [
+          ...prev.slice(0, prev.length - 1), // Remove the 'Thinking...' message
+          { role: 'bot', content: data.response }
+        ]);
+      } catch (error) {
+        console.error('Error:', error);
+        setChatMessages(prev => [
+          ...prev.slice(0, prev.length - 1),
+          { role: 'bot', content: 'Sorry, something went wrong.' }
+        ]);
+      }
       setUserInput('')
     }
   }
