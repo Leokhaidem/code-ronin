@@ -1,53 +1,60 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactEventHandler, KeyboardEventHandler } from 'react';
 import {
   GoogleGenerativeAI,
   HarmCategory,
   HarmBlockThreshold,
 } from '@google/generative-ai';
 
+interface Messages {
+  text: string;
+  role: string;
+  timeStamp: Date;
+}
+
 export default function ChatBot() {
-  const [messages, setMessages] = useState([]); // array for messages
+  const [messages, setMessages] = useState<Messages[]>([]); // array for messages
   const [userInput, setUserInput] = useState(''); // user input
-  const [chat, setChat] = useState(null); // chat object
-  const [error, setError] = useState(null); // error message
+  const [chat, setChat] = useState<any>(null); // chat object
+  const [error, setError] = useState(""); // error message
   const [code, setCode] = useState('// Write your code here');
 
   // Make sure to store your API_KEY safely
-  const API_KEY ="AIzaSyBq4s49uBxwOtiB8pi5VheCqBFwL1UN9BMAIzaSyBq4s49uBxwOtiB8pi5VheCqBFwL1UN9BMAIzaSyBq4s49uBxwOtiB8pi5VheCqBFwL1UN9BMAIzaSyBq4s49uBxwOtiB8pi5VheCqBFwL1UN9BM"; //process.env.NEXT_PUBLIC_API_KEY;
+  const API_KEY =process.env.GOOGLE_APIKEY; //process.env.NEXT_PUBLIC_API_KEY;
   const MODEL_NAME = 'gemini-1.5-flash';
 
   // Initialize the GoogleGenerativeAI object
-  const genAI = new GoogleGenerativeAI(API_KEY);
-
-  const generationConfig = {
-    temperature: 0.9,
-    topK: 1,
-    topP: 1,
-    maxOutputTokens: 2048,
-  };
-
-  const safetySettings = [
-    {
-      category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-    },
-    {
-      category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-    },
-    {
-      category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-    },
-    {
-      category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-    },
-  ];
+ 
 
   // Initialize the chat session
   useEffect(() => {
+    const genAI = new GoogleGenerativeAI(API_KEY!);
+
+    const generationConfig = {
+      temperature: 0.9,
+      topK: 1,
+      topP: 1,
+      maxOutputTokens: 2048,
+    };
+  
+    const safetySettings = [
+      {
+        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+      },
+    ];
     const initChat = async () => {
       try {
         const newChat = await genAI
@@ -67,7 +74,7 @@ export default function ChatBot() {
     };
 
     initChat();
-  }, []);
+  }, [messages, API_KEY]);
 
   // Handle sending user messages and receiving bot responses
   const handleSendMessage = async () => {
@@ -80,15 +87,15 @@ export default function ChatBot() {
       setMessages((prevMessages) => [...prevMessages, userMessage]);
       setUserInput("");
 
-      if (chat) {
-        const result = await chat.sendMessage({text:userInput,});
-        const botMessage = {
-          text: result.response.text || 'No response from bot', // Assuming the API returns the response text directly
-          role: 'bot',
-          timeStamp: new Date(),
-        };
-        setMessages((prevMessages) => [...prevMessages, botMessage]);
-      }
+      // if (chat) {
+      //   const result = await chat.sendMessage({text:userInput,});
+      //   const botMessage = {
+      //     text: result.response.text || 'No response from bot', // Assuming the API returns the response text directly
+      //     role: 'bot',
+      //     timeStamp: new Date(),
+      //   };
+      //   setMessages((prevMessages) => [...prevMessages, botMessage]);
+      // }
     } catch (error) {
       console.error('Error sending message:', error);
       setError('Failed to send the message. Please try again.');
@@ -96,12 +103,12 @@ export default function ChatBot() {
   };
 
   // Handle 'Enter' key press
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter'/*  && userInput */) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
+  // const handleKeyPress = (e: KeyboardEventHandler<HTMLInputElement>) => {
+  //   if (e.key === 'Enter'/*  && userInput */) {
+  //     e.preventDefault();
+  //     handleSendMessage();
+  //   }
+  // };
 
   return (
     <div className="flex h-screen">
@@ -132,7 +139,7 @@ export default function ChatBot() {
             type="text"
             className="flex-grow p-2 border border-gray-300 rounded-l-lg"
             placeholder="Type a message..."
-            onKeyDown={handleKeyPress}
+            // onKeyDown={handleKeyPress}
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
           />
