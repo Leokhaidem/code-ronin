@@ -12,8 +12,10 @@ const languageOptions = [
   { value: "javascript", label: "JavaScript" },
   { value: "python", label: "Python" },
 ]
-
-export default function CodeEditor() {
+interface CodeEditorProps {
+  setUserCode: (userCode: string) => void;
+}
+export default function CodeEditor({setUserCode} : CodeEditorProps) {
   const [language, setLanguage] = useState("javascript")
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
 
@@ -73,6 +75,7 @@ export default function CodeEditor() {
     if (editorRef.current) {
       const code = editorRef.current.getValue()
       console.log("Running code:", code)
+      setUserCode(code);
       // Implement code execution logic here
     }
   }

@@ -22,8 +22,11 @@ interface Message {
   text: string
   sender: "user" | "bot"
 }
-
-export default function Chatbot() {
+interface ChatBotProps {
+  userCode: string;
+}
+export default function Chatbot({userCode} : ChatBotProps) {
+  
   const [messages, setMessages] = useState<Message[]>([
     { id: 1, text: "Hello! How can I assist you today?", sender: "bot" },
   ])
@@ -41,11 +44,11 @@ export default function Chatbot() {
   
     setMessages((prevMessages) => [...prevMessages, newMessage])
     setInput("")
+
+    const data = {message: input, code: userCode}
   
     try {
-      const response = await axios.post("http://localhost:3000/api/chat", {
-        message: input
-      });
+      const response = await axios.post("http://localhost:3000/api/chat", data);
   
       const botResponse: Message = {
         id: messages.length + 2,
