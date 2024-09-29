@@ -1,4 +1,5 @@
 "use client";
+import ReactMarkDown from "react-markdown";
 import axios from "axios";
 import { useState, ChangeEvent, FormEvent, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -17,6 +18,7 @@ type ChatMessage = {
 };
 
 export default function LearningPage() {
+  //  const [codeResult, setCodeResult] = useState<number>(0);
   const [code, setCode] = useState<string>("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
@@ -27,7 +29,6 @@ export default function LearningPage() {
   const [userInput, setUserInput] = useState<string>("");
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const [codeResult, setCodeResult] = useState<number>(0);
   
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -37,18 +38,18 @@ export default function LearningPage() {
 
   const handleChatSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!userInput) return;
+    // if (!userInput) return;
 
     const userMessage: ChatMessage = { role: "user", content: userInput };
     setChatMessages((prevMessages) => [...prevMessages, userMessage]);
-
+    // console.log(codeResult);
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: userInput, code: code, statusId: codeResult }),
+        body: JSON.stringify({ message: userInput, code: code, statusId: 0}),
       });
 
       if (!response.ok) {
@@ -68,38 +69,37 @@ export default function LearningPage() {
     setUserInput("");
   };
 
-  const handleCodeSubmit = async () => {
-    const newSourceCode = btoa(code);
-    
-    const getSubmission = async (tokenId: string) => {
-      const options = {
-        method: 'GET',
-        url: `https://judge0-ce.p.rapidapi.com/submissions/${tokenId}`,
-        params: {
-          base64_encoded: 'true',
-          fields: '*'
-        },
-        headers: {
-          'x-rapidapi-key': '39f3c52513mshbff838acd348120p198a15jsn1088ec846558',
-          'x-rapidapi-host': 'judge0-ce.p.rapidapi.com'
-        }
-      };
-      try {
-        const response = await axios.request(options);
-        return response.data;
-      } catch (error) {
-        console.error("Error fetching submission:", error);
-        throw error;
+  const getSubmission = async (tokenId: string) => {
+    const options = {
+      method: 'GET',
+      url: `https://judge0-ce.p.rapidapi.com/submissions/${tokenId}`,
+      params: {
+        base64_encoded: 'true',
+        fields: '*'
+      },
+      headers: {
+  'x-rapidapi-key': 'd14b19724emsh66233dccadb2f12p115f09jsncd0ecd390471',
+  'x-rapidapi-host': 'judge0-ce.p.rapidapi.com'
       }
     };
+    try {
+      const response = await axios.request(options);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching submission:", error);
+      throw error;
+    }
+  };
 
+  const handleCodeSubmit = async () => {
+    const newSourceCode = btoa(code);
     const options = {
       method: "POST",
       url: "https://judge0-ce.p.rapidapi.com/submissions",
       params: { base64_encoded: 'true', fields: '*' },
       headers: {
-        "x-rapidapi-key": "39f3c52513mshbff838acd348120p198a15jsn1088ec846558",
-        "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
+        'x-rapidapi-key': 'd14b19724emsh66233dccadb2f12p115f09jsncd0ecd390471',
+        'x-rapidapi-host': 'judge0-ce.p.rapidapi.com',
         "Content-Type": "application/json",
       },
       data: {
@@ -108,6 +108,7 @@ export default function LearningPage() {
         stdin: btoa(""),
       },
     };
+    
       
     try {
       const response = await axios.request(options);
@@ -117,33 +118,35 @@ export default function LearningPage() {
       do {
         await new Promise(resolve => setTimeout(resolve, 1000));
         submission = await getSubmission(response.data.token);
+        // setCodeResult(submission.status.id);
         console.log("Submission status:", submission.status);
-        await setCodeResult(submission.status.id);
       } while (submission.status.id <= 2);
 
-      console.log(`Code result before fetch: ${codeResult}`);
+      console.log(`Code result before fetch: ${submission.status.id}`);
       
-      const chatResponse = await fetch("/api/chat", {
+      const cresponse = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: userInput, code: code, statusId: submission.status.id }),
+        body: JSON.stringify({ message: userInput, code: code, statusId: submission.status.id}),
       });
 
-      if (!chatResponse.ok) {
-        throw new Error(`HTTP error! status: ${chatResponse.status}`);
+      if (!cresponse.ok) {
+        throw new Error(`HTTP error! status: ${cresponse.status}`);
       }
 
-      const data = await chatResponse.json();
+      const data = await cresponse.json();
       const botMessage: ChatMessage = { role: "bot", content: data.reply };
 
       setChatMessages((prevMessages) => [...prevMessages, botMessage]);
-      setCodeResult(0);
+      // setCodeResult(0);
 
       if (submission.status.id === 3) {
         console.log("Code executed successfully");
+        // setCodeResult(submission.status.id);
         console.log("Output:", atob(submission.stdout || ""));
+
       } else {
         console.error("Execution error:", submission.status.description);
         console.error("Compiler output:", atob(submission.compile_output || ""));
@@ -152,11 +155,11 @@ export default function LearningPage() {
       }
     } catch (error) {
       console.error("Error submitting or running code:", error);
-      const errorMessage: ChatMessage = { 
-        role: "bot", 
-        content: `Error running code: ${error instanceof Error ? error.message : 'Unknown error'}. Please check the console for more details.` 
-      };
-      setChatMessages(prevMessages => [...prevMessages, errorMessage]);
+      // const errorMessage: ChatMessage = { 
+      //   role: "bot", 
+      //   content: `Error running code: ${error instanceof Error ? error.message : 'Unknown error'}. Please check the console for more details.` 
+      // };
+      // setChatMessages(prevMessages => [...prevMessages, errorMessage]);
     }
   };
   return (
@@ -202,7 +205,7 @@ export default function LearningPage() {
                       message.role === "user" ? "text-right" : "text-left"
                     }`}
                   >
-                    <div
+                    <ReactMarkDown
                       className={`inline-block rounded-lg p-2 max-w-[80%] ${
                         message.role === "user"
                           ? "bg-indigo-500 text-white"
@@ -210,7 +213,7 @@ export default function LearningPage() {
                       }`}
                     >
                       {message.content}
-                    </div>
+                    </ReactMarkDown>
                   </div>
                 ))}
               </div>
@@ -225,9 +228,7 @@ export default function LearningPage() {
                   className="flex-1"
                 />
                 <Button type="submit">Send</Button>
-                <Button variant="outline">
-                  <FaMicrophone />
-                </Button>
+                
               </form>
             </div>
 
