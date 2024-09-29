@@ -47,6 +47,32 @@
 //   }
 // }
 // app/api/chat/route.ts
+const mainPrompt = `You are a Socratic tutor designed to guide students in learning Merge Sort Algorithm. Your teaching method involves asking thought-provoking questions to help the student progress through the following learning steps:
+
+Understand the logic: Use relevant examples to help the student grasp the underlying principles.
+Write the code: Assist the student in translating the logic into code.
+Optimize the code: Help the student improve their solution for optimal time and space complexity.
+Status Codes:
+With each interaction, you will receive a status code that determines how you should proceed.
+
+If the status code is 0, continue guiding the student using the steps above.
+For any other status code, follow the corresponding action based on the table below:
+Status Code	Description
+1	In Queue
+2	Processing
+3	Accepted
+4	Wrong Answer
+5	Time Limit Exceeded
+6	Compilation Error
+7	Runtime Error (SIGSEGV)
+8	Runtime Error (SIGXFSZ)
+9	Runtime Error (SIGFPE)
+10	Runtime Error (SIGABRT)
+11	Runtime Error (NZEC)
+12	Runtime Error (Other)
+13	Internal Error
+14	Exec Format Error
+For non-zero status codes, provide feedback based on the error and suggest improvements to the student's code.`
 import { NextResponse } from 'next/server';
 // Import Google Generative AI
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -54,12 +80,14 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY as string;
 
 const conversationHistory: string[] = [];
+conversationHistory.push(mainPrompt);
 
 export async function POST(request: Request) {
   try {
-    const { message, code } = await request.json();
+    const { message, code, statusId } = await request.json();
     console.log(message);
     console.log(code);
+    console.log(statusId);
 
     if (!message) {
       return NextResponse.json({ response: 'Message is required' }, { status: 400 });
@@ -68,30 +96,47 @@ export async function POST(request: Request) {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    conversationHistory.push(`User: ${message}`);
-    conversationHistory.push(`UserCode: ${code}`)
+    if (message) {
+      conversationHistory.push(`User: ${message}`);
+      if (code) {
+        conversationHistory.push(`UserCode: ${code}`)
+
+      }
+    }
+    conversationHistory.push(`StatusId: ${statusId}`)
     console.log(conversationHistory);
-    const socraticPrompt = `
-      You are a Socratic tutor helping a student understand the merge sort algorithm. 
-      Your goal is to guide the student through the learning process by asking questions 
-      and encouraging them to think deeply. Avoid explaining directly, instead focus on 
-      asking questions based on their answers.
+    // if (statusId !== 0) {
+    //   const statusPrompt = `If status Id is still 0, then tell the student "Done"`
+    //   const result = await model.generateContent( statusPrompt );
+    //   const aiResponse = result.response.text();
+    //   console.log(aiResponse);
+    //   conversationHistory.push(`AI: ${aiResponse}`);
 
-      Use the conversation history to ask follow-up questions that assess whether the student has a solid grasp of the key concepts behind merge sort (divide and conquer, splitting, merging, and time complexity). If the student responds correctly or provides clear explanations of how merge sort works, acknowledge that they have understood the topic.No more than 10 questions should be asked.
+    //   return NextResponse.json({ reply: aiResponse});
+    // } else {
 
-      If the student insists that they have understood the topic, even without fully detailed answers, acknowledge that the student has learned the basics of merge sort.
-
-      Here is the conversation so far: ${conversationHistory.join(" ")}
-
-      Based on the user's last response, either continue asking questions to probe their understanding or, if they have demonstrated or insisted they understand, conclude that they know the basics of merge sort and tell them this -"You have understood the basics of merge sort"
-    `;
-
-    const result = await model.generateContent( socraticPrompt );
-    const aiResponse = result.response.text();
-    console.log(aiResponse);
-    conversationHistory.push(`AI: ${aiResponse}`);
-
-    return NextResponse.json({ reply: aiResponse});
+      // const socraticPrompt = `
+      //   You are a Socratic tutor helping a student understand the merge sort algorithm. 
+      //   Your goal is to guide the student through the learning process by asking questions 
+      //   and encouraging them to think deeply. Avoid explaining directly, instead focus on 
+      //   asking questions based on their answers.
+  
+      //   Use the conversation history to ask follow-up questions that assess whether the student has a solid grasp of the key concepts behind merge sort (divide and conquer, splitting, merging, and time complexity). If the student responds correctly or provides clear explanations of how merge sort works, acknowledge that they have understood the topic.No more than 10 questions should be asked.
+  
+      //   If the student insists that they have understood the topic, even without fully detailed answers, acknowledge that the student has learned the basics of merge sort.
+  
+      //   Here is the conversation so far: ${conversationHistory.join(" ")}
+  
+      //   Based on the user's last response, either continue asking questions to probe their understanding or, if they have demonstrated or insisted they understand, conclude that they know the basics of merge sort and tell them this -"You have understood the basics of merge sort"
+      // `;
+  
+      const result = await model.generateContent( conversationHistory.join(" ") );
+      const aiResponse = result.response.text();
+      console.log(aiResponse);
+      conversationHistory.push(`AI: ${aiResponse}`);
+  
+      return NextResponse.json({ reply: aiResponse});
+    // }
   } catch (error) {
     console.error('Error fetching AI response from Gemini API:', error);
     return NextResponse.json({ response: 'Error fetching AI response from Gemini API' }, { status: 500 });
