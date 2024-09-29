@@ -51,7 +51,10 @@ const mainPrompt = `You are a Socratic tutor designed to guide students in learn
 
 Understand the logic: Use relevant examples to help the student grasp the underlying principles.
 Write the code: Assist the student in translating the logic into code.
-Optimize the code: Help the student improve their solution for optimal time and space complexity.
+Optimize the code: Help the student improve their solution for optimal time and space complexity of merge sort to O(nlogn) if he can't already
+More context: 
+The student is also provided with a code editor so you'll have to review the code being sent.
+Regardless of the steps to help student understand, if the student is confident about merge sort, tell him to write the code himself and that you'll review the code
 Status Codes:
 With each interaction, you will receive a status code that determines how you should proceed.
 
@@ -89,19 +92,19 @@ export async function POST(request: Request) {
     console.log(code);
     console.log(statusId);
 
-    if (!message) {
-      return NextResponse.json({ response: 'Message is required' }, { status: 400 });
-    }
+    // if (!message) {
+    //   return NextResponse.json({ response: 'Message is required' }, { status: 400 });
+    // }
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     if (message) {
       conversationHistory.push(`User: ${message}`);
-      if (code) {
-        conversationHistory.push(`UserCode: ${code}`)
+    }
+    if (code) {
+      conversationHistory.push(`UserCode: ${code}`)
 
-      }
     }
     conversationHistory.push(`StatusId: ${statusId}`)
     console.log(conversationHistory);
