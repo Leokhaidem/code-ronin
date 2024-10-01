@@ -33,13 +33,13 @@ import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import {prisma} from "@/db/prisma"
 import { getServerSession } from 'next-auth';
-import { AuthOptions } from '../auth/[...nextauth]/route';
+import { authOptions } from '../auth/[...nextauth]/route';
 const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY as string;
 
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(AuthOptions);
+    const session = await getServerSession(authOptions);
     if (!session || !session.user || !session.user.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

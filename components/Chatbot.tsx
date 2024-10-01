@@ -48,7 +48,7 @@ export default function Chatbot({userCode} : ChatBotProps) {
     const data = {message: input, code: userCode}
   
     try {
-      const response = await axios.post("http://localhost:3000/api/chat", data);
+      const response = await axios.post("/api/chat", data);
   
       const botResponse: Message = {
         id: messages.length + 2,
