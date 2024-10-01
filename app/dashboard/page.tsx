@@ -1,4 +1,5 @@
 "use client"
+import DashboardComp from '@/components/DashboardComp';
 // accessing auth session on the server
 // in route.ts of nextauth
 // export const authOptions = {providers...
@@ -14,8 +15,9 @@ function Dashboard() {
 
   return (
     <div>
-        <div>Dashboard</div>
-        {status === "authenticated" && <div>{`The user ${session.user!.name} is logged in`}</div>}
+        {/* <div>Dashboard</div>
+        {status === "authenticated" && <div>{`The user ${session.user!.name} is logged in`}</div>} */}
+        <DashboardComp/>
     </div>
   )
 }
