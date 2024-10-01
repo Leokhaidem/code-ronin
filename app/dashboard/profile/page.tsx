@@ -1,8 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { FaUser, FaMap } from 'react-icons/fa'
-import { Button } from "@/components/ui/button"
+import { FaUser} from 'react-icons/fa'
 import { Progress } from "@/components/ui/progress"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -169,20 +168,6 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
-      {/* Header */}
-      <header className="bg-white shadow-md">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-indigo-600">CodeRonin</h1>
-          <nav className="flex space-x-4">
-            <Button variant="ghost" className="flex items-center">
-              <FaUser className="mr-2" /> Dashboard
-            </Button>
-            <Button variant="ghost" className="flex items-center">
-              <FaMap className="mr-2" /> Learning Roadmap
-            </Button>
-          </nav>
-        </div>
-      </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">

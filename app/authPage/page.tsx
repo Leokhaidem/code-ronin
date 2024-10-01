@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { FaGoogle } from 'react-icons/fa'
 import { signIn } from 'next-auth/react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter} from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,8 +12,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 
 export default function AuthPage() {
-  const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
+  // const searchParams = useSearchParams()
+  const callbackUrl = '/dashboard'
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin')
   const [error, setError] = useState<string | null>(null)
@@ -30,12 +30,12 @@ export default function AuthPage() {
 
     if (authMode === 'signin') {
       const result = await signIn('credentials', {
-        redirect: false,
+        redirect: true,
         email,
         password,
         callbackUrl: callbackUrl
       })
-
+      console.log(result);
       if (result?.error) {
         setError('Invalid email or password')
         setIsLoading(false)
@@ -59,10 +59,10 @@ export default function AuthPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password, username }),
         })
-
+        console.log(response)
         if (response.ok) {
           // Automatically sign in after successful registration
-          await signIn('credentials', { redirect: false, email, password })
+          await signIn('credentials', { redirect: true, email, password })
           router.push('/dashboard')
         } else {
           const data = await response.json()

@@ -3,7 +3,7 @@ import ReactMarkDown from "react-markdown";
 import axios from "axios";
 import { useState, ChangeEvent, FormEvent, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FaCode, FaRobot, FaMicrophone } from "react-icons/fa";
+import { FaCode, FaRobot } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import dynamic from "next/dynamic";
@@ -164,31 +164,28 @@ export default function LearningPage() {
   };
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
-      <motion.header
+      {/* <motion.header
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         className="bg-white shadow-md"
       >
         {/* ... header content */}
-      </motion.header>
+      {/* </motion.header> */} 
 
       <main className="container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-lg shadow-lg overflow-hidden"
+          className="bg-white rounded-lg shadow-lg overflow-hidden h-full"
         >
-          <div className="p-6 bg-indigo-50">
+          <div className="p-2 bg-indigo-50">
             <h2 className="text-2xl font-bold text-indigo-800 mb-2">
               Current Topic: Merge Sort
             </h2>
-            <p className="text-gray-600">
-              Let&apos;s dive deeper into how Merge Sort works.
-            </p>
           </div>
 
           <div className="flex">
-            <div className="w-2/5 p-6 border-r border-indigo-100">
+            <div className="w-2/5 p-4 border-r border-indigo-100">
               <div className="flex items-center mb-4">
                 <FaRobot className="text-indigo-500 mr-2" />
                 <h3 className="text-xl font-semibold">AI Tutor</h3>
@@ -232,7 +229,7 @@ export default function LearningPage() {
               </form>
             </div>
 
-            <div className="w-3/5 p-6">
+            <div className="w-3/5 p-4">
               <div className="flex items-center mb-4">
                 <FaCode className="text-indigo-500 mr-2" />
                 <h3 className="text-xl font-semibold">Code Editor</h3>
@@ -245,7 +242,7 @@ export default function LearningPage() {
                 onChange={(value) => setCode(value || "")}
                 options={{ minimap: { enabled: false }, fontSize: 14 }}
               />
-              <Button variant="link" onClick={handleCodeSubmit}>
+              <Button className="mt-4" variant="outline" onClick={handleCodeSubmit}>
                 Submit
               </Button>
             </div>

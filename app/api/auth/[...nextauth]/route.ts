@@ -35,9 +35,19 @@ export const AuthOptions : NextAuthOptions = {
             clientSecret: process.env.GOOGLE_CLIENTSECRET!
         })
     ],
+    pages: {
+        signIn: '/authPage'
+    },
     session: {
         strategy: "jwt"
-    }
+    },
+    callbacks: {
+        async redirect() {
+          // Always redirect to /dashboard after sign-in
+          return '/dashboard';
+        },
+      },
+      
 }
 
 const handler = NextAuth(AuthOptions);

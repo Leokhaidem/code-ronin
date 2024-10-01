@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FaRobot, FaCode, FaComments, FaMicrophone } from 'react-icons/fa'
+import { FaRobot, FaCode, FaComments } from 'react-icons/fa'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Image from 'next/image'
@@ -13,7 +13,6 @@ export default function LandingPage() {
     { icon: FaRobot, title: 'AI-Powered Learning', description: 'Socratic method tailored to your pace' },
     { icon: FaCode, title: 'Interactive Code Editor', description: 'Write and test DSA in real-time' },
     { icon: FaComments, title: 'Intelligent Chatbot', description: 'Get guidance through chat interactions' },
-    { icon: FaMicrophone, title: 'Voice Functionality', description: 'Learn DSA through voice conversations' },
   ]
 
   return (
@@ -36,7 +35,7 @@ export default function LandingPage() {
             <li><Button variant="ghost" className="text-gray-600 hover:text-indigo-600">Features</Button></li>
             <li><Button variant="ghost" className="text-gray-600 hover:text-indigo-600">Pricing</Button></li>
             <li><Button variant="ghost" className="text-gray-600 hover:text-indigo-600">About</Button></li>
-            <li><Button variant="outline" className="text-indigo-600 border-indigo-600 hover:bg-indigo-600 hover:text-white" onClick={() => router.push('/authPage')}>Log In</Button></li>
+            <li><Button variant="outline" className="text-indigo-600 border-indigo-600 hover:bg-indigo-600 hover:text-white" onClick={() => router.push('/dashboard')}>Log In</Button></li>
           </motion.ul>
         </nav>
       </header>
@@ -51,8 +50,8 @@ export default function LandingPage() {
           <h2 className="text-5xl font-bold mb-4 text-indigo-800">Master DSA with AI Guidance</h2>
           <p className="text-xl mb-8 text-gray-600">Experience the Socratic method in Data Structures and Algorithms learning</p>
           <div className="flex justify-center space-x-4">
-            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">Start Learning</Button>
-            <Button variant="outline" className="text-indigo-600 border-indigo-600 hover:bg-indigo-600 hover:text-white">
+            <Button onClick={() => router.push("/dashboard")} className="bg-indigo-600 hover:bg-indigo-700 text-white">Start Learning</Button>
+            <Button onClick={() => router.push("/dashboard")} variant="outline" className="text-indigo-600 border-indigo-600 hover:bg-indigo-600 hover:text-white">
               Explore Features
             </Button>
           </div>
@@ -62,7 +61,7 @@ export default function LandingPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.6 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16"
+          className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-8 mb-16"
         >
           {features.map((feature, index) => (
             <motion.div
@@ -93,11 +92,11 @@ export default function LandingPage() {
             <p className="text-xl mb-6 text-gray-600">
               Engage with our AI tutor in a dynamic code editor. Receive real-time feedback and guidance as you tackle DSA challenges.
             </p>
-            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">Try Demo Editor</Button>
+
           </div>
           <div className="md:w-1/2 relative h-64 w-full">
             <Image
-              src="/placeholder.svg?height=256&width=512"
+              src="/image.png"
               alt="CodeRonin Interactive Editor"
               layout="fill"
               objectFit="cover"
@@ -114,13 +113,13 @@ export default function LandingPage() {
         >
           <h2 className="text-3xl font-bold mb-4 text-indigo-800">Ready to Elevate Your DSA Skills?</h2>
           <p className="text-xl mb-8 text-gray-600">Join CodeRonin and experience a revolutionary way to master Data Structures and Algorithms</p>
-          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => router.push('/authPage')}>Get Started for Free</Button>
+          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => router.push('/dashboard')}>Get Started for Free</Button>
         </motion.div>
       </main>
 
       <footer className="bg-indigo-100 py-8">
         <div className="container mx-auto px-4 text-center text-gray-600">
-          <p>&copy; 2024 CodeRonin. All rights reserved.</p>
+          <p>Presented by Stoic Keys</p>
         </div>
       </footer>
     </div>
