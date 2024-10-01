@@ -33,7 +33,7 @@ import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import {prisma} from "@/db/prisma"
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]/route';
+import { authOptions } from '@/app/auth';
 const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY as string;
 
 
